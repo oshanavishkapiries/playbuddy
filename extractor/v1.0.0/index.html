@@ -1,0 +1,205 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Video Stream Extractor</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      input[type="text"] {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .stream-url {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #e8f5e9;
+        border-radius: 4px;
+        display: none;
+      }
+      .network-requests {
+        margin-top: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .request-item {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        font-family: monospace;
+      }
+      .request-item:hover {
+        background-color: #f5f5f5;
+      }
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+      }
+      .loading:after {
+        content: " .";
+        animation: dots 1.5s steps(5, end) infinite;
+      }
+      @keyframes dots {
+        0%,
+        20% {
+          content: " .";
+        }
+        40% {
+          content: " ..";
+        }
+        60% {
+          content: " ...";
+        }
+        80%,
+        100% {
+          content: " ....";
+        }
+      }
+      .play-button {
+        display: none;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .play-button button {
+        background-color: #2196f3;
+        padding: 15px 30px;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 auto;
+      }
+      .play-button button:hover {
+        background-color: #1976d2;
+      }
+      .play-icon {
+        width: 24px;
+        height: 24px;
+        background-color: white;
+        border-radius: 50%;
+        display: inline-block;
+        position: relative;
+      }
+      .play-icon:after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 55%;
+        transform: translate(-50%, -50%);
+        border-left: 8px solid #2196f3;
+        border-top: 6px solid transparent;
+        border-bottom: 6px solid transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Video Stream Extractor</h1>
+      <div class="input-group">
+        <input
+          type="text"
+          id="urlInput"
+          placeholder="Enter video website URL"
+        />
+        <button onclick="loadUrl()">Extract Stream</button>
+      </div>
+
+      <div id="loading" class="loading">
+        Analyzing website for video streams
+      </div>
+
+      <div id="playButton" class="play-button">
+        <button onclick="playStream()">
+          <span class="play-icon"></span>
+          Play Video
+        </button>
+      </div>
+
+      <div id="streamUrl" class="stream-url"></div>
+
+      <h2>Network Requests</h2>
+      <div id="networkRequests" class="network-requests"></div>
+    </div>
+
+    <script>
+      const { ipcRenderer } = require("electron");
+      let currentStreamUrl = null;
+
+      function loadUrl() {
+        const url = document.getElementById("urlInput").value;
+        if (url) {
+          // Show loading indicator
+          document.getElementById("loading").style.display = "block";
+          // Hide play button
+          document.getElementById("playButton").style.display = "none";
+          // Clear previous stream URL
+          document.getElementById("streamUrl").style.display = "none";
+          // Clear network requests
+          document.getElementById("networkRequests").innerHTML = "";
+
+          ipcRenderer.send("load-url", url);
+        }
+      }
+
+      function playStream() {
+        if (currentStreamUrl) {
+          ipcRenderer.send("open-player", currentStreamUrl);
+        }
+      }
+
+      ipcRenderer.on("stream-detected", (event, url) => {
+        // Hide loading indicator
+        document.getElementById("loading").style.display = "none";
+
+        const streamUrlDiv = document.getElementById("streamUrl");
+        streamUrlDiv.style.display = "block";
+        streamUrlDiv.innerHTML = `<strong>Detected Stream URL:</strong><br>${url}`;
+
+        // Store the stream URL and show play button
+        currentStreamUrl = url;
+        document.getElementById("playButton").style.display = "block";
+      });
+
+      ipcRenderer.on("network-request", (event, request) => {
+        const networkRequests = document.getElementById("networkRequests");
+        const requestItem = document.createElement("div");
+        requestItem.className = "request-item";
+        requestItem.textContent = `${request.method} ${request.statusCode} - ${request.url}`;
+        networkRequests.insertBefore(requestItem, networkRequests.firstChild);
+      });
+    </script>
+  </body>
+</html>
