@@ -11,7 +11,8 @@ type Torrent struct {
 	UploadedBy   string `json:"UploadedBy"`
 	Url          string `json:"Url"`
 	Magnet       string `json:"Magnet"`
-	TorrentFile  string `json:"TorrentFile"`	
+	TorrentFile  string `json:"TorrentFile"`
+	Provider     string `json:"Provider,omitempty"` // Provider name
 }
 
 // Provider represents a torrent provider interface

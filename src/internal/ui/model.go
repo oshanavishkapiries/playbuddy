@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/oshanavishkapiries/playbuddy/src/internal/models"
 	"github.com/oshanavishkapiries/playbuddy/src/internal/services"
+	"github.com/oshanavishkapiries/playbuddy/src/internal/ui/utils"
 	"github.com/oshanavishkapiries/playbuddy/src/internal/ui/views"
 )
 
@@ -27,6 +28,8 @@ type Model struct {
 	selectedTorrent *models.Torrent
 	searchService   *services.SearchService
 	lastSearch      string
+	// Filter state
+	filterState utils.FilterState
 	// Navigation history
 	history      []HistoryEntry
 	historyIndex int
@@ -197,6 +200,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.state = StateTorrentDetails
 					m.cursor = 0
 				}
+			case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
+				// Handle numbered filter selection
+				if len(m.filterState.AvailableProviders) > 0 {
+					m.filterState.ActiveProvider = utils.SetFilterByNumber(m.filterState.AvailableProviders, msg.String())
+					m.cursor = 0 // Reset cursor when filter changes
+				}
 			case KeyEscape:
 				m.saveCurrentState()
 				m.state = StateSearch
@@ -232,6 +241,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if len(m.results) > 0 {
 				m.state = StateResults
 				m.cursor = 0
+				// Initialize filter state with available providers
+				m.filterState.AvailableProviders = utils.GetAvailableProviders(m.results)
+				m.filterState.ActiveProvider = "" // Start with no filter
 			}
 		}
 	case loaderTickMsg:
@@ -252,7 +264,7 @@ func (m Model) View() string {
 	case StateSearch:
 		return views.ViewSearch(m.input, m.loading, m.loaderFrame, loaderFrames, m.error)
 	case StateResults:
-		return views.ViewResults(m.results, m.cursor, truncateString)
+		return views.ViewResults(m.results, m.cursor, truncateString, m.filterState)
 	case StateTorrentDetails:
 		return views.ViewTorrentDetails(m.selectedTorrent)
 	default:

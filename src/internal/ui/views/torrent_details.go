@@ -6,10 +6,14 @@ import (
 )
 
 func ViewTorrentDetails(t *models.Torrent) string {
+
+	s := sharedstyles.AsciiStyle.Render(sharedstyles.AsciiArt) + "\n"
+	s += sharedstyles.VersionStyle.Render(sharedstyles.Version) + "\n\n"
+
 	if t == nil {
 		return "No torrent selected"
 	}
-	s := sharedstyles.TitleStyle.Render("Torrent Details") + "\n\n"
+	s += sharedstyles.TitleStyle.Render("Torrent Details") + "\n\n"
 
 	s += sharedstyles.DetailStyle.Render(sharedstyles.DetailLabelStyle.Render("Name: ")+sharedstyles.DetailValueStyle.Render(t.Name)) + "\n"
 	s += sharedstyles.DetailStyle.Render(sharedstyles.DetailLabelStyle.Render("Size: ")+sharedstyles.DetailValueStyle.Render(t.Size)) + "\n"

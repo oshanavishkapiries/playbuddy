@@ -19,7 +19,7 @@ type PirateBayProvider struct {
 // NewPirateBayProvider creates a new PirateBay provider
 func NewPirateBayProvider() *PirateBayProvider {
 	return &PirateBayProvider{
-		baseURL: "http://localhost:3001/api/piratebay",
+		baseURL: "http://68.183.184.162:5362/api/piratebay",
 		client: &http.Client{
 			Timeout: 10 * time.Second,
 		},
