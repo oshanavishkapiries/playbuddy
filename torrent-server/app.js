@@ -23,7 +23,7 @@ app.use('/api/:website/:query/:page?', (req, res, next) => {
         })
     } else if (torrents[website]) {
         torrents[website](query, page).then((v) => {
-            console.log(v)
+            //console.log(v)
             res.json(v)
         })
     } else {

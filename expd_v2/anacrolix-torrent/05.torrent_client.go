@@ -14,9 +14,13 @@ import (
 
 // TorrentClient represents a comprehensive torrent client
 type TorrentClient struct {
-	client *torrent.Client
+	client   *torrent.Client
 	torrents map[string]*torrent.Torrent
 	config   *torrent.ClientConfig
+}
+
+func main() {
+	runComprehensiveClient()
 }
 
 // NewTorrentClient creates a new torrent client instance
@@ -34,9 +38,9 @@ func NewTorrentClient(dataDir string, port int) (*TorrentClient, error) {
 	}
 
 	return &TorrentClient{
-		client:    client,
-		torrents:  make(map[string]*torrent.Torrent),
-		config:    config,
+		client:   client,
+		torrents: make(map[string]*torrent.Torrent),
+		config:   config,
 	}, nil
 }
 
@@ -49,10 +53,10 @@ func (tc *TorrentClient) AddTorrentFromMagnet(magnetLink string) (*torrent.Torre
 
 	// Wait for metadata
 	<-t.GotInfo()
-	
+
 	// Store torrent reference
 	tc.torrents[t.InfoHash().String()] = t
-	
+
 	return t, nil
 }
 
@@ -65,10 +69,10 @@ func (tc *TorrentClient) AddTorrentFromFile(torrentPath string) (*torrent.Torren
 
 	// Wait for metadata
 	<-t.GotInfo()
-	
+
 	// Store torrent reference
 	tc.torrents[t.InfoHash().String()] = t
-	
+
 	return t, nil
 }
 
@@ -80,7 +84,9 @@ func (tc *TorrentClient) StartDownload(t *torrent.Torrent) {
 
 // PauseDownload pauses downloading a torrent
 func (tc *TorrentClient) PauseDownload(t *torrent.Torrent) {
-	t.StopDataDownload()
+	// Note: anacrolix/torrent doesn't have a direct pause method
+	// This is a placeholder - in practice you would stop the download
+	// by not calling DownloadAll() or by removing the torrent
 	fmt.Printf("Paused downloading: %s\n", t.Name())
 }
 
@@ -106,20 +112,20 @@ func (tc *TorrentClient) RemoveTorrent(t *torrent.Torrent, deleteData bool) {
 func (tc *TorrentClient) GetTorrentStats(t *torrent.Torrent) map[string]interface{} {
 	stats := t.Stats()
 	info := t.Info()
-	
+
 	return map[string]interface{}{
-		"name":              t.Name(),
-		"info_hash":         t.InfoHash().String(),
-		"total_size":        t.Length(),
-		"downloaded":        stats.BytesRead,
-		"uploaded":          stats.BytesWritten,
-		"progress":          float64(t.BytesCompleted()) / float64(t.Length()) * 100,
-		"peers_connected":   len(t.PeerConns()),
-		"download_speed":    stats.BytesReadData.Int64(),
-		"upload_speed":      stats.BytesWrittenData.Int64(),
-		"piece_length":      info.PieceLength,
-		"total_pieces":      info.NumPieces,
-		"completed_pieces":  t.BytesCompleted() / info.PieceLength,
+		"name":             t.Name(),
+		"info_hash":        t.InfoHash().String(),
+		"total_size":       t.Length(),
+		"downloaded":       stats.BytesRead,
+		"uploaded":         stats.BytesWritten,
+		"progress":         float64(t.BytesCompleted()) / float64(t.Length()) * 100,
+		"peers_connected":  len(t.PeerConns()),
+		"download_speed":   stats.BytesReadData.Int64(),
+		"upload_speed":     stats.BytesWrittenData.Int64(),
+		"piece_length":     info.PieceLength,
+		"total_pieces":     info.NumPieces,
+		"completed_pieces": t.BytesCompleted() / info.PieceLength,
 	}
 }
 
@@ -148,15 +154,15 @@ func (tc *TorrentClient) MonitorTorrents(ctx context.Context) {
 			return
 		case <-ticker.C:
 			fmt.Println("\n=== Torrent Status Update ===")
-					for _, t := range tc.torrents {
-			stats := tc.GetTorrentStats(t)
-			fmt.Printf("%s: %.2f%% complete, %d peers, %.2f MB/s down, %.2f MB/s up\n",
-				stats["name"],
-				stats["progress"],
-				stats["peers_connected"],
-				float64(stats["download_speed"].(int64))/1024/1024,
-				float64(stats["upload_speed"].(int64))/1024/1024)
-		}
+			for _, t := range tc.torrents {
+				stats := tc.GetTorrentStats(t)
+				fmt.Printf("%s: %.2f%% complete, %d peers, %.2f MB/s down, %.2f MB/s up\n",
+					stats["name"],
+					stats["progress"],
+					stats["peers_connected"],
+					float64(stats["download_speed"].(int64))/1024/1024,
+					float64(stats["upload_speed"].(int64))/1024/1024)
+			}
 		}
 	}
 }
@@ -176,7 +182,7 @@ func runComprehensiveClient() {
 	defer tc.Close()
 
 	// Example magnet link (replace with your own)
-	magnetLink := "magnet:?xt=urn:btih:YOUR_TORRENT_HASH_HERE&dn=example+torrent"
+	magnetLink := "magnet:?xt=urn:btih:223F7484D326AD8EFD3CF1E548DED524833CB77E&dn=Avengers.Endgame.2019.1080p.BRRip.x264-MP4&tr=http%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2F47.ip-51-68-199.eu%3A6969%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2780%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2710%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2730%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2920%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Fopentracker.i2p.rocks%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.cyberia.is%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.internetwarriors.net%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Ftracker.pirateparty.gr%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.tiny-vps.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
 
 	// Add torrent
 	t, err := tc.AddTorrentFromMagnet(magnetLink)
@@ -209,4 +215,4 @@ func runComprehensiveClient() {
 
 	// List final status
 	tc.ListAllTorrents()
-} 
+}

@@ -8,7 +8,11 @@ import (
 	"github.com/anacrolix/torrent"
 )
 
-func getTorrentInfo() {
+// func main(){
+// 	TorrentInfo()
+// }
+
+func TorrentInfo() {
 	// Create a new torrent client configuration
 	config := torrent.NewDefaultClientConfig()
 	config.DataDir = "./info_cache"
@@ -21,7 +25,7 @@ func getTorrentInfo() {
 	defer client.Close()
 
 	// Example magnet link (replace with your own)
-	magnetLink := "magnet:?xt=urn:btih:YOUR_TORRENT_HASH_HERE&dn=example+torrent"
+	magnetLink := "magnet:?xt=urn:btih:223F7484D326AD8EFD3CF1E548DED524833CB77E&dn=Avengers.Endgame.2019.1080p.BRRip.x264-MP4&tr=http%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2F47.ip-51-68-199.eu%3A6969%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2780%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2710%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2730%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2920%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Fopentracker.i2p.rocks%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.cyberia.is%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.internetwarriors.net%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Ftracker.pirateparty.gr%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.tiny-vps.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
 
 	// Add the torrent to the client
 	t, err := client.AddMagnet(magnetLink)
@@ -60,17 +64,14 @@ func getTorrentInfo() {
 	
 	for i, peer := range peers {
 		fmt.Printf("Peer %d:\n", i+1)
-		fmt.Printf("  Address: %s\n", peer.RemoteAddr())
-		fmt.Printf("  Client: %s\n", peer.ClientName())
-		fmt.Printf("  Upload Speed: %d bytes/s\n", peer.Stats().BytesWrittenData.Int64())
-		fmt.Printf("  Download Speed: %d bytes/s\n", peer.Stats().BytesReadData.Int64())
+		fmt.Printf("  Address: %s\n", peer.RemoteAddr.String())
 	}
 
 	// Get torrent statistics
 	fmt.Println("\n=== Torrent Statistics ===")
 	stats := t.Stats()
-	fmt.Printf("Bytes Read: %d (%.2f MB)\n", stats.BytesRead, float64(stats.BytesRead)/1024/1024)
-	fmt.Printf("Bytes Written: %d (%.2f MB)\n", stats.BytesWritten, float64(stats.BytesWritten)/1024/1024)
+	fmt.Printf("Bytes Read: %d (%.2f MB)\n", stats.BytesRead.Int64(), float64(stats.BytesRead.Int64())/1024/1024)
+	fmt.Printf("Bytes Written: %d (%.2f MB)\n", stats.BytesWritten.Int64(), float64(stats.BytesWritten.Int64())/1024/1024)
 	fmt.Printf("Bytes ReadData: %d (%.2f MB)\n", stats.BytesReadData.Int64(), float64(stats.BytesReadData.Int64())/1024/1024)
 	fmt.Printf("Bytes WrittenData: %d (%.2f MB)\n", stats.BytesWrittenData.Int64(), float64(stats.BytesWrittenData.Int64())/1024/1024)
 	fmt.Printf("ChunksRead: %d\n", stats.ChunksRead)
@@ -78,8 +79,7 @@ func getTorrentInfo() {
 
 	// Get piece information
 	fmt.Println("\n=== Piece Information ===")
-	pieces := t.Pieces()
-	fmt.Printf("Total Pieces: %d\n", len(pieces))
+	fmt.Printf("Total Pieces: %d\n", info.NumPieces)
 	fmt.Printf("Completed Pieces: %d\n", t.BytesCompleted()/info.PieceLength)
 	fmt.Printf("Completion: %.2f%%\n", float64(t.BytesCompleted())/float64(t.Length())*100)
 

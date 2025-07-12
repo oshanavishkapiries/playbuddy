@@ -1,0 +1,7 @@
+http://localhost:3001/api/piratebay/avengers
+http://localhost:3001/api/eztv/avengers
+http://localhost:3001/api/limetorrent/avengers
+http://localhost:3001/api/nyaasi/avengers
+http://localhost:3001/api/torrentfunk/avengers
+http://localhost:3001/api/yts/avengers
+http://localhost:3001/api/zooqle/avengers
