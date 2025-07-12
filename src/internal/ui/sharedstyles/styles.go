@@ -1,8 +1,7 @@
-package ui
+package sharedstyles
 
 import "github.com/charmbracelet/lipgloss"
 
-// Styles for the application UI
 var (
 	TitleStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("205")).
