@@ -21,11 +21,8 @@ func ShowHomeView() {
 		"• exit     - Close the application",
 	)
 
-	content := ui.BorderStyle.Render(menu)
-
-	
 	fmt.Println(renderedTitle)
 	fmt.Println("  ", description) 
-	fmt.Println("\n", content)
+	fmt.Println("\n", menu)
 
 }
