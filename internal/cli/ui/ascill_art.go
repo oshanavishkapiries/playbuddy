@@ -1,10 +1,18 @@
 package ui
 
-const AsciiArt = `
+import (
+	"fmt"
+	"github.com/oshanavishkapiries/playbuddy/internal/configs"
+)
+
+const asciiArt = `
 ██████  ██       █████  ██    ██ ██████  ██    ██ ██████  ██████  ██    ██
 ██   ██ ██      ██   ██  ██  ██  ██   ██ ██    ██ ██   ██ ██   ██  ██  ██ 
 ██████  ██      ███████   ████   ██████  ██    ██ ██   ██ ██   ██   ████  
 ██      ██      ██   ██    ██    ██   ██ ██    ██ ██   ██ ██   ██    ██   
 ██      ███████ ██   ██    ██    ██████   ██████  ██████  ██████     ██  
-Version: 0.1.0
 `
+
+func AsciiArt() string {
+	return fmt.Sprintf("%sVersion: %s", asciiArt, configs.Version)
+}

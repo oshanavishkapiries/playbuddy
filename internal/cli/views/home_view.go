@@ -1,18 +1,17 @@
 package views
 
 import (
-	"github.com/oshanavishkapiries/playbuddy/internal/cli/ui"
-	"github.com/charmbracelet/lipgloss"
 	"fmt"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/oshanavishkapiries/playbuddy/internal/cli/ui"
 )
 
-
 func ShowHomeView() {
-    
-	renderedTitle := ui.TitleStyle.Render(ui.AsciiArt)
+
+	renderedTitle := ui.TitleStyle.Render(ui.AsciiArt())
 
 	description := ui.DescStyle.Render("Welcome to PlayBuddy - Your Ultimate Torrent CLI Companion")
-	
+
 	menu := lipgloss.JoinVertical(lipgloss.Left,
 		lipgloss.NewStyle().Foreground(ui.Green).Render("(Available Commands):"),
 		"• search   - Search for torrents online",
@@ -21,8 +20,8 @@ func ShowHomeView() {
 		"• exit     - Close the application",
 	)
 
-	fmt.Println(renderedTitle)
-	fmt.Println("  ", description) 
+	fmt.Println("  ", renderedTitle)
+	fmt.Println("  ", description)
 	fmt.Println("\n", menu)
 
 }
