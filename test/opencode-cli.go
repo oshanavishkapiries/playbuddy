@@ -15,7 +15,7 @@ type model struct {
 	width     int // Terminal width
 	height    int // Terminal height
 }
-
+	
 // initialModel sets up the default state
 func initialModel() model {
 	ti := textinput.New()
